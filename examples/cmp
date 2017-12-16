@@ -1,0 +1,10 @@
+#!/usr/bin/env node
+
+var LocalhostAvg = 31426 + 29731 + 30662
+var UnixsockAvg = 26185 + 26422 + 26080
+
+var UnixsockSpend = UnixsockAvg - (LocalhostAvg / 2)
+var LocalhostSpend = (LocalhostAvg / 2)
+
+console.log('Spendtime Unixsock/Localhost => ' + UnixsockSpend + '/' + LocalhostSpend)
+console.log(UnixsockSpend * 1.0 / LocalhostSpend)

@@ -1,0 +1,57 @@
+#!/usr/bin/env node
+var server = 'nats:///Volumes/user/gnats.sock';
+//var nats = require('nats').connect(server);
+var nats = require('nats').connect();
+
+nats.on('error', function(e) {
+    console.log('Error [' + nats.options.url + ']: ' + e);
+    process.exit();
+});
+
+nats.on('close', function() {
+    console.log('CLOSED');
+    process.exit();
+});
+
+var msgSize = 1000;
+var msgCnt = 100000;
+var receiveCnt = 0;
+var sendCnt = 0;
+var begin = 0;
+var end = 0;
+console.log('Listening on ' + nats.url.href + ', msgCnt ' + msgCnt + ' msgSize ' + msgSize);
+
+function initMsg(size)
+{
+    var msg = '';
+    for(var i = 0; i < size; i ++)
+    {
+        msg += i%10;
+    }
+    return msg;
+}
+
+var msgStr = initMsg(msgSize);
+
+function doPub()
+{
+    nats.publish('service-api', msgStr, function() {
+        sendCnt ++;
+    });
+}
+
+nats.subscribe('service-client', function(msg) {
+    receiveCnt ++;
+    if(receiveCnt == msgCnt)
+    {
+        end = Date.now();
+        console.log('End time : ' + end + ', spend time ' + (end - begin));
+        process.exit();
+    }
+    else
+        doPub();
+});
+
+begin = Date.now();
+console.log('Begin time : ' + begin);
+doPub();

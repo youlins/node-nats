@@ -1,0 +1,23 @@
+#!/usr/bin/env node
+
+var nats = require('nats').connect();
+
+nats.on('error', function(e) {
+    console.log('Error [' + nats.options.url + ']: ' + e);
+    process.exit();
+});
+
+nats.on('close', function() {
+    console.log('CLOSED');
+    process.exit();
+});
+
+console.log('Listening on service-api');
+
+var receiveCnt = 0;
+nats.subscribe('service-api', function(msg) {
+    receiveCnt ++;
+    nats.publish('service-client', msg, function() {
+        
+    });
+});
